@@ -32,7 +32,7 @@ def get_folder_contents(folder_path):
 
 class TaskManager:
     def __init__(self, file_path, file_name):
-        self.file_path = file_path + file_name + ".txt"
+        self.file_path = file_path + file_name
         self.tasks = []
         self.completed = []
         self.notes = []
@@ -207,18 +207,18 @@ def open_first_window():
     button_frame.pack(pady=20)  
     
     add_button = tk.Button(first_window, text="Add Task", command=add_task_button)
-    add_button.pack(side='left', padx=10)
+    add_button.pack(side='left',expand=True, padx=10, anchor="center")
     complete_button = tk.Button(first_window, text="Complete Task", command=complete_task_button)
-    complete_button.pack(side='left', padx=10)
+    complete_button.pack(side='left', padx=10, anchor="center")
     delete_button = tk.Button(first_window, text="Delete Task", command=delete_task_button)
-    delete_button.pack(side='left', padx=10)
+    delete_button.pack(side='left',expand=True, padx=10, anchor="center")
     
     add_note_btn = tk.Button(first_window, text="Add Note", command=add_note_button)
-    add_note_btn.pack(side='left', padx=10)
+    add_note_btn.pack(side='left', expand=True, padx=10, anchor="center")
     edit_note_btn = tk.Button(first_window, text="Edit Note", command=edit_note_button)
-    edit_note_btn.pack(side='left', padx=10)
+    edit_note_btn.pack(side='left', expand=True, padx=10, anchor="center")
     close_button = tk.Button(first_window, text="Close", command=first_window.destroy)
-    close_button.pack(side='left', padx=10)
+    close_button.pack(side='bottom', padx=10, anchor="center")
     button_frame.pack(anchor="center")
     
     update_textbox()
@@ -240,7 +240,7 @@ def open_create_window():
     createbox = tk.Entry(create_window, width=60)
     createbox.pack(pady=10)
     create_button = tk.Button(create_window, text="Create", command=create)
-    create_button.pack(pady=10)
+    create_button.pack(side='lSeft', expand=True, padx=10, anchor="center")
 
     
 
@@ -260,7 +260,6 @@ dropdown.pack(pady=10)
 
 if initial_options:
     selected_option.set(initial_options[0])
-    
 
     
 RefreshFolder()
@@ -272,9 +271,9 @@ def option_changed(event):
 
 dropdown.bind("<<ComboboxSelected>>", option_changed)
 open_button = tk.Button(root, text="Open", command=open_first_window)
-open_button.pack(side='left', padx=10)
+open_button.pack(side='left', expand=True, padx=10, anchor="center")
 create_window_button = tk.Button(root, text="Create New File", command=open_create_window)
-create_window_button.pack(side='left', padx=10)
+create_window_button.pack(side='left', expand=True, padx=10, anchor="center")
 
 
 # Run the Tkinter event loop
