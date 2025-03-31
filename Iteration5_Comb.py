@@ -175,9 +175,6 @@ def edit_note_button():
         else:
             status_label.config(text="Failed to edit note.", fg="red")
 
-def read_file_button():
-    update_textbox()
-    status_label.config(text="File content reloaded.", fg="black")
 
 # ----------------------- GUI Integration with Tkinter ------------------------
 
@@ -215,8 +212,6 @@ def open_first_window():
     complete_button.pack(side='left', padx=10)
     delete_button = tk.Button(first_window, text="Delete Task", command=delete_task_button)
     delete_button.pack(side='left', padx=10)
-    read_button = tk.Button(first_window, text="Read File", command=read_file_button)
-    read_button.pack(side='left', padx=10)
     
     add_note_btn = tk.Button(first_window, text="Add Note", command=add_note_button)
     add_note_btn.pack(side='left', padx=10)
@@ -265,7 +260,6 @@ dropdown.pack(pady=10)
 
 if initial_options:
     selected_option.set(initial_options[0])
-    
     
 
     
