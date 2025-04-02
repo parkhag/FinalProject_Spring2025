@@ -9,52 +9,43 @@ import tkinter as tk
 from tkinter import ttk
 import os
 
+
+# Function to pull the names of each file in a folder
 def get_folder_contents(folder_path):
-  """
-  Retrieves the contents of a specified folder.
-
-  Args:
-      folder_path: The path to the folder.
-
-  Returns:
-      A list of strings, where each string is the name of a file or a subfolder 
-      within the specified folder.
-  """
   try:
-    contents = os.listdir(folder_path)
+    contents = os.listdir(folder_path)  #Using OS get the directory of all files as a list and store as content
     return contents
-  except FileNotFoundError:
+  except FileNotFoundError: #If the file is found return error
     return f"Error: Folder '{folder_path}' not found."
-  except NotADirectoryError:
+  except NotADirectoryError:    #If directory not found return error
       return f"Error: '{folder_path}' is not a directory."
-  except Exception as e:
+  except Exception as e:    #Error of other exceptions
       return f"An error occurred: {e}"
 
-class TaskManager:
-    def __init__(self, file_path, file_name):
-        self.file_path = file_path + file_name
-        self.tasks = []
-        self.completed = []
-        self.notes = []
-        self.load_data()
+class TaskManager:  #Task Class to handle the editing of to do list and notes
+    def __init__(self, file_path, file_name):   #Create the constructor with file_path and file_name
+        self.file_path = file_path + file_name  #Creates combined directory
+        self.tasks = []                 #List that stores the pending tasks
+        self.completed = []             #List that stores the completed tasks
+        self.notes = []                 #List that stores the notes
+        self.load_data()                #Calls the load_data function
     
-    def load_data(self):
-        try:
-            with open(self.file_path, 'r') as text_file:
+    def load_data(self):    #function that loads the data from the .txt file
+        try:    #closes .txt file after being read
+            with open(self.file_path, 'r') as text_file:    #opens the file as read
                 lines = text_file.readlines()
                 reading_notes = False
                 for line in lines:
-                    line = line.strip()
+                    line = line.strip()     #strips the each line to be filtered
                     if line == "":
                         continue  # Skip empty lines
-                    if line.strip() == "# Notes Start":
+                    if line.strip() == "# Notes Start": #filters out Notes Start
                         reading_notes = True
                         continue
                     if reading_notes:
                         self.notes.append(line)
                     else:
-                    # Check if the line contains both task and status
-                        if ' - ' in line:
+                        if ' - ' in line:        #if the to do status is marked as completed add to completed list   
                             task, status = line.split(' - ')
                             self.tasks.append(task)
                             self.completed.append(status == "Completed")
@@ -65,12 +56,12 @@ class TaskManager:
             self.create_new_file()
 
 
-    def create_new_file(self):
+    def create_new_file(self):  #Create new file
         with open(self.file_path, 'w') as text_file:
             text_file.write("# New File Created\n")
         print(f"New file created: {self.file_path}")
 
-    def save_data(self):
+    def save_data(self):    #saves the new list data to the .txt file
         with open(self.file_path, 'w') as text_file:
             for task, status in zip(self.tasks, self.completed):
                 text_file.write(f"{task} - {'Completed' if status else 'Pending'}\n")
@@ -78,12 +69,12 @@ class TaskManager:
             for note in self.notes:
                 text_file.write(f"{note}\n")
       
-    def add_task(self, task):
+    def add_task(self, task):   #adds a new task to the list of tasks and saves
         self.tasks.append(task)
         self.completed.append(False)
         self.save_data()
     
-    def delete_task(self, task_name):
+    def delete_task(self, task_name):   #deletes task if it is found in the tasks list
         if task_name in self.tasks:
             index = self.tasks.index(task_name)
             del self.tasks[index]
@@ -92,7 +83,7 @@ class TaskManager:
             return True
         return False
     
-    def complete_task(self, task_name):
+    def complete_task(self, task_name): #if the task name is found in the tasks list it marks it as completed in its complementary position in the completed list
         if task_name in self.tasks:
             index = self.tasks.index(task_name)
             self.completed[index] = True
@@ -100,7 +91,7 @@ class TaskManager:
             return True
         return False
     
-    def edit_note(self, index, new_note):
+    def edit_note(self, index, new_note):   #Updates the note to knew note string
         if 0 <= index < len(self.notes):
             self.notes[index] = new_note
             self.save_data()
@@ -114,9 +105,9 @@ class TaskManager:
 # Constructor Initializing
 file_path = "C:/Users/alexa/OneDrive/Documents/Text Files/"  # Default path to current directory
 
-def update_textbox():
-    task_list = "\n".join([f"{task} - {'Completed' if status else 'Pending'}" for task, status in zip(task_manager.tasks, task_manager.completed)])
-    notes_list = "\n".join(task_manager.notes)
+def update_textbox():   #updates the text box with loaded data every time it is edited via a function button
+    task_list = "\n".join([f"{task} - {'Completed' if status else 'Pending'}" for task, status in zip(task_manager.tasks, task_manager.completed)]) #prints the list of tasks with respective statuses
+    notes_list = "\n".join(task_manager.notes)  #prints the notes list
     text_box.config(state=tk.NORMAL)
     text_box.delete("1.0", tk.END)
     text_box.insert(tk.END, f"Tasks:\n{task_list}\n\n# Notes:\n{notes_list}")
@@ -125,17 +116,17 @@ def update_textbox():
     for note in task_manager.notes:
         list_box.insert(tk.END, note)
 
-def add_task_button():
+def add_task_button():  #adds tasks as the string typed into the input bar
     task = entry.get()
     if task:
         task_manager.add_task(task)
         entry.delete(0, tk.END)
         update_textbox()
-        status_label.config(text="Task added.", fg="green")
+        status_label.config(text="Task added.", fg="green") #status statement
 
-def delete_task_button():
+def delete_task_button():   #deletes tasks as the string typed into the input bar
     task_name = entry.get()
-    if task_name:
+    if task_name:           #only does so if the task_name matches a corresponding task string stored in the tasks list
         success = task_manager.delete_task(task_name)
         if success:
             entry.delete(0, tk.END)
@@ -144,7 +135,7 @@ def delete_task_button():
         else:
             status_label.config(text="Task not found.", fg="red")
 
-def complete_task_button():
+def complete_task_button():     #marks as task as completed via its completed list
     task_name = entry.get()
     if task_name:
         success = task_manager.complete_task(task_name)
@@ -155,7 +146,7 @@ def complete_task_button():
         else:
             status_label.config(text="Task not found.", fg="red")
 
-def add_note_button():
+def add_note_button():      #adds a note to the note list
     note = entry.get()
     if note:
         task_manager.notes.append(note)
@@ -164,7 +155,7 @@ def add_note_button():
         update_textbox()
         status_label.config(text="Note added.", fg="blue")
 
-def edit_note_button():
+def edit_note_button():     #update a note from the note list depending on the input from the input bar
     note = entry.get()
     selected_index = list_box.curselection()
     if note and selected_index:
@@ -177,8 +168,7 @@ def edit_note_button():
         else:
             status_label.config(text="Failed to edit note.", fg="red")
             
-# Function to delete note
-def delete_note_button():
+def delete_note_button():   #deletes the note
     selected_index = list_box.curselection()
     if selected_index:
         note_index = selected_index[0]
@@ -192,109 +182,106 @@ def delete_note_button():
 
 # ----------------------- GUI Integration with Tkinter ------------------------
 
-root = tk.Tk()
-root.title("Task Manager")
-root.geometry("500x200")
+root = tk.Tk()      #initializing the root window
+root.title("Task Manager")  #naming the root window
+root.geometry("500x200")    #sizing for the root window
 
 
-#------------
-
-
-def open_first_window():
+def open_first_window():    #function that stores the widgets for the note To Do List Editor
     global task_manager, text_box, entry, list_box, status_label
-    first_window = tk.Toplevel()
-    first_window.title("To Do List Editor")
-    first_window.geometry("800x800")
-    file_name = selected_option.get()
-    task_manager = TaskManager(file_path, file_name)
-    text_box = tk.Text(first_window, wrap="word", width=60, height=15)
-    text_box.pack(pady=10)
-    label = tk.Label(first_window, text="To Do List Editor")
+    first_window = tk.Toplevel()    #pushes the window to the top level
+    first_window.title("To Do List Editor") #titles the window
+    first_window.geometry("800x800")    #sizes the window
+    file_name = selected_option.get()   #from the file name selected from the dropdown opens the corresponding file
+    task_manager = TaskManager(file_path, file_name)    #creates a constructor with the Task Manager class
+    text_box = tk.Text(first_window, wrap="word", width=60, height=15)  #sizing for text box
+    text_box.pack(pady=10)  
+    label = tk.Label(first_window, text="To Do List Editor")    #label for the window
     label.pack()
     entry = tk.Entry(first_window, width=60)
     entry.pack(pady=5)
-    list_box = tk.Listbox(first_window, height=5, width=60)
+    list_box = tk.Listbox(first_window, height=5, width=60) #input bar for the user to type in
     list_box.pack(pady=5)
-    status_label = tk.Label(first_window, text="", fg="red")
+    status_label = tk.Label(first_window, text="", fg="red")    #status label
     status_label.pack(pady=5)
     button_frame = tk.Frame(first_window)
     button_frame.pack(pady=20)  
     
-    add_button = tk.Button(first_window, text="Add Task", command=add_task_button)
+    #To Do List Buttons
+    add_button = tk.Button(first_window, text="Add Task", command=add_task_button)  #add button that adds tasks
     add_button.pack(side='left',expand=True, padx=10, anchor="center")
-    complete_button = tk.Button(first_window, text="Complete Task", command=complete_task_button)
+    complete_button = tk.Button(first_window, text="Complete Task", command=complete_task_button)   #complete button that completes tasks
     complete_button.pack(side='left', padx=10, anchor="center")
-    delete_button = tk.Button(first_window, text="Delete Task", command=delete_task_button)
+    delete_button = tk.Button(first_window, text="Delete Task", command=delete_task_button) #delete button that deletes tasks
     delete_button.pack(side='left',expand=True, padx=10, anchor="center")
     
-    add_note_btn = tk.Button(first_window, text="Add Note", command=add_note_button)
+    #Note Buttons
+    add_note_btn = tk.Button(first_window, text="Add Note", command=add_note_button)    #add note button that adds note
     add_note_btn.pack(side='left', expand=True, padx=10, anchor="center")
-    edit_note_btn = tk.Button(first_window, text="Edit Note", command=edit_note_button)
+    edit_note_btn = tk.Button(first_window, text="Edit Note", command=edit_note_button) #edit note button that edits note
     edit_note_btn.pack(side='left', expand=True, padx=10, anchor="center")
-    
-    delete_note_btn = tk.Button(first_window, text="Delete Note", command=delete_note_button)
+    delete_note_btn = tk.Button(first_window, text="Delete Note", command=delete_note_button)   #delete note button that deltes a note
     delete_note_btn.pack(side='left', expand=True, padx=10, anchor="center")
     
-    
-    close_button = tk.Button(first_window, text="Close", command=first_window.destroy)
+    # Other buttons
+    close_button = tk.Button(first_window, text="Close", command=first_window.destroy)      #closes the To Do List editor window
     close_button.pack(side='bottom', padx=10, anchor="center")
     button_frame.pack(anchor="center")
     
-    
-    update_textbox()
-    
+    update_textbox() #updates the textbox
     
     
-def create():
+    
+def create():   #function for creating new file
     file_name = createbox.get()
     task_manager = TaskManager(file_path, file_name)
-    task_manager.create_new_file()
-    create_window.destroy()
-    RefreshFolder()
+    task_manager.create_new_file()  #calls create new file from 
+    create_window.destroy()         #closes the window after the file is created
+    RefreshFolder()                 #refreshes the file list dropdown
     
-def open_create_window():
+def open_create_window():   #Creation of the window for new file creation
     global createbox, create_window
     create_window = tk.Toplevel()
     create_window.title("Create File")
     create_window.geometry("500x200")
     createbox = tk.Entry(create_window, width=60)
     createbox.pack(pady=10)
-    create_button = tk.Button(create_window, text="Create", command=create)
-    create_button.pack(side='lSeft', expand=True, padx=10, anchor="center")
-
+    create_button = tk.Button(create_window, text="Create", command=create) #create button that calls the create function
+    create_button.pack(side='left', expand=True, padx=10, anchor="center")
+    close_button = tk.Button(create_window, text="Close", command=create_window.destroy)      #closes the file creation window
+    close_button.pack(side='bottom', padx=10, anchor="center")
     
 
-
-def RefreshFolder():
-    new_options = get_folder_contents(file_path)
-    dropdown['values'] = new_options
-    if new_options:
+def RefreshFolder():    #function to refresh the folder
+    new_options = get_folder_contents(file_path)    #pulls the new list of options from the get_folder_contents function
+    dropdown['values'] = new_options   #sets the dropdown to refreshed list of options
+    if new_options:     #If there are new options ser them
         selected_option.set(new_options[0])
     else:
-        selected_option.set("")
+        selected_option.set("") #if no option set set nothing
         
-selected_option = tk.StringVar()
-initial_options = get_folder_contents(file_path)
-dropdown = ttk.Combobox(root, textvariable=selected_option, values=initial_options)
+selected_option = tk.StringVar()    #get the option selected by the user from the dropdown menu
+initial_options = get_folder_contents(file_path)    #get the initial options from the get_folder_contents function
+dropdown = ttk.Combobox(root, textvariable=selected_option, values=initial_options) #create a dropdown menu in the root window
 dropdown.pack(pady=10)
 
-if initial_options:
-    selected_option.set(initial_options[0])
+if initial_options: 
+    selected_option.set(initial_options[0]) #sets the list of files from folder to dropdown menu
 
     
 RefreshFolder()
-dropdown.pack(pady=20)
+dropdown.pack(pady=20)  #place the drowdown widget
 
 
-def option_changed(event):
+def option_changed():  #function to change the option variable when a new dropdown is selected
     print("selected option:", selected_option.get())
 
-dropdown.bind("<<ComboboxSelected>>", option_changed)
-open_button = tk.Button(root, text="Open", command=open_first_window)
-open_button.pack(side='left', expand=True, padx=10, anchor="center")
-create_window_button = tk.Button(root, text="Create New File", command=open_create_window)
-create_window_button.pack(side='left', expand=True, padx=10, anchor="center")
+dropdown.bind("<<ComboboxSelected>>", option_changed)   #if new option selected call option_changed function
+open_button = tk.Button(root, text="Open", command=open_first_window)   #open button that 
+open_button.pack(side='left', expand=True, padx=10, anchor="center")    #place button
+create_window_button = tk.Button(root, text="Create New File", command=open_create_window)  #button for create new file
+create_window_button.pack(side='left', expand=True, padx=10, anchor="center")   #place button
 
 
 # Run the Tkinter event loop
-root.mainloop()
+root.mainloop() 
