@@ -57,9 +57,14 @@ class TaskManager:  #Task Class to handle the editing of to do list and notes
 
 
     def create_new_file(self):  #Create new file
-        with open(self.file_path, 'w') as text_file:
-            text_file.write("# New File Created\n")
-        print(f"New file created: {self.file_path}")
+        if os.path.exists(self.file_path):  #if the file already exists don't allow the user to overwrite the file
+            print(f"File already exists: {self.file_path}. Creation skipped.")
+            return False
+        else:
+            with open(self.file_path, 'w') as text_file:
+                text_file.write("# New File Created\n")
+            print(f"New file created: {self.file_path}")
+            return True
 
     def save_data(self):    #saves the new list data to the .txt file
         with open(self.file_path, 'w') as text_file:
@@ -235,20 +240,27 @@ def open_first_window():    #function that stores the widgets for the note To Do
 def create():   #function for creating new file
     file_name = createbox.get()
     task_manager = TaskManager(file_path, file_name)
-    task_manager.create_new_file()  #calls create new file from 
-    create_window.destroy()         #closes the window after the file is created
-    RefreshFolder()                 #refreshes the file list dropdown
+    if task_manager.create_new_file() == True:  #calls create new file from 
+        create_window.destroy()         #closes the window after the file is created
+        RefreshFolder()                 #refreshes the file list dropdown
+    else:
+        status_labelc.config(text="File Already Exists", fg="red") #status statement
+
     
 def open_create_window():   #Creation of the window for new file creation
-    global createbox, create_window
+    global createbox, create_window, status_labelc
     create_window = tk.Toplevel()
     create_window.title("Create File")
     create_window.geometry("500x200")
-    createbox = tk.Entry(create_window, width=60)
+    createbox = tk.Entry(create_window, width=60)   #box used inputing file name
     createbox.pack(pady=10)
-    create_button = tk.Button(create_window, text="Create", command=create) #create button that calls the create function
-    create_button.pack(side='left', expand=True, padx=10, anchor="center")
-    close_button = tk.Button(create_window, text="Close", command=create_window.destroy)      #closes the file creation window
+    create_frame = tk.Frame(create_window)  #used to group the buttons vertically
+    create_frame.pack(pady=5)
+    create_button = tk.Button(create_frame, text="Create", command=create)  #create button for creating a new file
+    create_button.pack()
+    status_labelc = tk.Label(create_frame, text="", fg="red")   # status that returns when error occurs
+    status_labelc.pack()
+    close_button = tk.Button(create_window, text="Close", command=create_window.destroy)    #close button to exit window
     close_button.pack(side='bottom', padx=10, anchor="center")
     
 
@@ -267,7 +279,6 @@ dropdown.pack(pady=10)
 
 if initial_options: 
     selected_option.set(initial_options[0]) #sets the list of files from folder to dropdown menu
-
     
 RefreshFolder()
 dropdown.pack(pady=20)  #place the drowdown widget
