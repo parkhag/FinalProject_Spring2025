@@ -4,6 +4,7 @@ Created on Wed Apr  2 11:57:58 2025
 
 @author: alexa
 """
+# REMEMBER TO CHANGE FILE DIRECTORY AT LINE 112 BEFORE RUNNING THE CODE!!!!
 
 import tkinter as tk
 from tkinter import ttk
